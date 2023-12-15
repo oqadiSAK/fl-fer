@@ -16,7 +16,7 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        self._video_capture = cv2.VideoCapture(0)
+        self._video_capture = cv2.VideoCapture(-1, 2)
         self._face_classifier = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_frontalface_default.xml")
         self._init_ui()
 
