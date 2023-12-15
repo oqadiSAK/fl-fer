@@ -1,0 +1,4 @@
+keras==2.15.0
+matplotlib==3.8.2
+numpy==1.26.2
+opencv_python==4.8.1.78
