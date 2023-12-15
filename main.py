@@ -1,6 +1,6 @@
 import sys
 import cv2
-from PyQt5.QtWidgets import (
+from PyQt6.QtWidgets import (
     QApplication,
     QMainWindow,
     QLabel,
@@ -9,14 +9,14 @@ from PyQt5.QtWidgets import (
     QHBoxLayout,
     QWidget,
 )
-from PyQt5.QtGui import QImage, QPixmap, QFont
-from PyQt5.QtCore import QTimer, Qt
+from PyQt6.QtGui import QImage, QPixmap, QFont
+from PyQt6.QtCore import QTimer, Qt
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        self._video_capture = cv2.VideoCapture(-1, 2)
+        self._video_capture = cv2.VideoCapture(-1)
         self._face_classifier = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_frontalface_default.xml")
         self._init_ui()
 
@@ -44,8 +44,8 @@ class MainWindow(QMainWindow):
         self.save_button = self._init_save_button()
         self.close_button_layout = self._init_close_button_layout()
 
-        actions_layout.addWidget(self.happy_label, alignment=Qt.AlignCenter)
-        actions_layout.addWidget(self.save_button, alignment=Qt.AlignCenter)
+        actions_layout.addWidget(self.happy_label, alignment=Qt.AlignmentFlag.AlignCenter)
+        actions_layout.addWidget(self.save_button, alignment=Qt.AlignmentFlag.AlignCenter)
         actions_layout.addLayout(self.close_button_layout)
         return actions_layout
 
@@ -99,7 +99,7 @@ def main():
     app = QApplication(sys.argv)
     window = MainWindow()
     window.showFullScreen()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())
 
 if __name__ == "__main__":
     main()
