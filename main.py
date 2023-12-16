@@ -1,5 +1,6 @@
 import sys
 import cv2
+from picamera2 import Picamera2
 from PyQt6.QtWidgets import (
     QApplication,
     QMainWindow,
@@ -16,14 +17,21 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        self._video_capture = cv2.VideoCapture(-1)
+        self.picam2 = Picamera2()
+        self.picam2.configure(self.picam2.create_preview_configuration(main={"format": 'XRGB8888', "size": (320, 240)}))
+        self.picam2.start()
+
         self._face_classifier = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_frontalface_default.xml")
+        self.face_detection_timer = QTimer(self)
+        self.face_detection_timer.timeout.connect(self._perform_face_detection)
+        self.face_detection_delay = 30  # Delay to perform face detection (in milliseconds)
+        self.face_detection_timer.start(self.face_detection_delay)
+
         self._init_ui()
 
     def _init_ui(self):
         self.setWindowTitle("Face Detection App")
         self._init_layouts()
-        self._init_timer()
 
     def _init_layouts(self):
         self.central_widget = QWidget()
@@ -63,16 +71,10 @@ class MainWindow(QMainWindow):
         close_button_layout.addWidget(close_button)
         return close_button_layout
 
-    def _init_timer(self):
-        self.timer = QTimer(self)
-        self.timer.timeout.connect(self._update_frame)
-        self.timer.start(10)
-
-    def _update_frame(self):
-        ret, frame = self._video_capture.read()
-        if ret:
-            self._detect_bounding_box(frame)
-            self._display_frame(frame)
+    def _perform_face_detection(self):
+        frame = self.picam2.capture_array()
+        self._detect_bounding_box(frame)
+        self._display_frame(frame)
 
     def _detect_bounding_box(self, vid):
         gray_image = cv2.cvtColor(vid, cv2.COLOR_BGR2GRAY)
@@ -82,17 +84,23 @@ class MainWindow(QMainWindow):
         return faces
 
     def _display_frame(self, frame):
+        gray_image = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        faces = self._face_classifier.detectMultiScale(gray_image, 1.1, 5, minSize=(40, 40))
+
+        for (x, y, w, h) in faces:
+            cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
+
         rgb_image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         h, w, ch = rgb_image.shape
         bytes_per_line = ch * w
-        q_img = QImage(rgb_image.data, w, h, bytes_per_line, QImage.Format_RGB888)
+        q_img = QImage(rgb_image.data, w, h, bytes_per_line, QImage.Format.Format_RGB888)
         pixmap = QPixmap.fromImage(q_img)
         label_size = self.video_label.size()
-        pixmap = pixmap.scaled(label_size, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+        pixmap = pixmap.scaled(label_size, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
         self.video_label.setPixmap(pixmap)
 
     def closeEvent(self, event):
-        self._video_capture.release()
+        self.picam2.stop()
         event.accept()
 
 def main():
