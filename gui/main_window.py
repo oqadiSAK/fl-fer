@@ -1,7 +1,7 @@
 from PyQt6.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QLabel, QPushButton, QHBoxLayout
-from PyQt6.QtGui import QFont
+from PyQt6.QtGui import QPixmap, QFont
 from PyQt6.QtCore import Qt
-from video_processor import VideoProcessor
+from gui.video_processor import VideoProcessor
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -12,7 +12,7 @@ class MainWindow(QMainWindow):
         self.video_processor.start()
 
     def _init_ui(self):
-        self.setWindowTitle("Face Detection App")
+        self.setWindowTitle("FL-FER")
         self.central_widget = QWidget()
         self.setCentralWidget(self.central_widget)
         self._init_video_layout()
@@ -26,9 +26,9 @@ class MainWindow(QMainWindow):
 
     def _init_actions_layout(self):
         self.actions_layout = QVBoxLayout()
-        self.happy_label = self._init_happy_label()
+        self.emoji_label = QLabel() 
         self.save_button = self._init_save_button()
-        self.actions_layout.addWidget(self.happy_label, alignment=Qt.AlignmentFlag.AlignCenter)
+        self.actions_layout.addWidget(self.emoji_label, alignment=Qt.AlignmentFlag.AlignCenter)
         self.actions_layout.addWidget(self.save_button, alignment=Qt.AlignmentFlag.AlignCenter)
 
     def _init_save_button(self):
@@ -36,19 +36,20 @@ class MainWindow(QMainWindow):
         save_button.setFont(QFont("Arial", 14))
         save_button.setFixedSize(100, 100)
         return save_button
-
-    def _init_happy_label(self):
-        happy_label = QLabel("Happy")
-        return happy_label
     
     def _init_main_layout(self):
         self.central_layout = QHBoxLayout(self.central_widget)
         self.central_layout.addLayout(self.video_layout, 7)
         self.central_layout.addLayout(self.actions_layout, 3)
 
-    def update_frame(self, pixmap):
+    def update_frame(self, pixmap, emoji_path):
         self.video_label.setPixmap(pixmap)
-
+        if emoji_path:
+            emoji_pixmap = QPixmap(emoji_path)
+            self.emoji_label.setPixmap(emoji_pixmap.scaledToHeight(100))
+        else:
+            self.emoji_label.clear()
+            self.emoji_label.setText("Emotion")
     def closeEvent(self, event):
         self.video_processor.stop()
         event.accept()
