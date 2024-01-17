@@ -3,6 +3,7 @@ import torch
 import time
 import pandas as pd
 import os
+import numpy as np
 from PyQt6.QtCore import QThread, QMutex, QWaitCondition, pyqtSignal
 from PyQt6.QtGui import QPixmap, QImage
 from centralized.model import Model
@@ -48,7 +49,7 @@ class VideoProcessor(QThread):
                 ret, self.frame = self.cap.read()
                 if not ret:
                     continue
-            processed_frame, emoji_path = self._detect_bounding_box(self.frame)
+            processed_frame, emoji_path = self._detect_bounding_box(np.copy(self.frame))
             pixmap = self._create_pixmap(processed_frame)
             self.frame_processed.emit(pixmap, emoji_path)
             self.msleep(int(1000/self.FPS))  # Delay to control frame rate
