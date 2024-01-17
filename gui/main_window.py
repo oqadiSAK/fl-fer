@@ -4,52 +4,60 @@ from PyQt6.QtCore import Qt
 from gui.video_processor import VideoProcessor
 
 class MainWindow(QMainWindow):
-    def __init__(self):
+    SAVE_BUTTON_SIZE = 100
+    SAVE_BUTTON_FONT = QFont("Arial", 14)
+    EMOJI_LABEL_HEIGHT = 100
+    VIDEO_LAYOUT_RATIO = 7
+    ACTIONS_LAYOUT_RATIO = 3
+    WINDOW_TITLE = "FL-FER"
+    SAVE_BUTTON_TEXT = "SAVE"
+    DEFAULT_EMOJI_LABEL_TEXT = "Emotion"
+
+    def __init__(self, cam_type):
         super().__init__()
-        self._init_ui()
-        self.video_processor = VideoProcessor()
+        self._init_ui(cam_type)
         self.video_processor.frame_processed.connect(self.update_frame)
         self.video_processor.start()
 
-    def _init_ui(self):
-        self.setWindowTitle("FL-FER")
+    def _init_ui(self, cam_type):
+        self.setWindowTitle(self.WINDOW_TITLE)
         self.central_widget = QWidget()
         self.setCentralWidget(self.central_widget)
-        self._init_video_layout()
-        self._init_actions_layout()
-        self._init_main_layout()
 
-    def _init_video_layout(self):
         self.video_layout = QVBoxLayout()
         self.video_label = QLabel()
         self.video_layout.addWidget(self.video_label)
 
-    def _init_actions_layout(self):
         self.actions_layout = QVBoxLayout()
         self.emoji_label = QLabel() 
-        self.save_button = self._init_save_button()
+        self.save_button = self._create_save_button()
         self.actions_layout.addWidget(self.emoji_label, alignment=Qt.AlignmentFlag.AlignCenter)
         self.actions_layout.addWidget(self.save_button, alignment=Qt.AlignmentFlag.AlignCenter)
 
-    def _init_save_button(self):
-        save_button = QPushButton("SAVE")
-        save_button.setFont(QFont("Arial", 14))
-        save_button.setFixedSize(100, 100)
-        return save_button
-    
-    def _init_main_layout(self):
         self.central_layout = QHBoxLayout(self.central_widget)
-        self.central_layout.addLayout(self.video_layout, 7)
-        self.central_layout.addLayout(self.actions_layout, 3)
+        self.central_layout.addLayout(self.video_layout, self.VIDEO_LAYOUT_RATIO)
+        self.central_layout.addLayout(self.actions_layout, self.ACTIONS_LAYOUT_RATIO)
+
+        self.video_processor = VideoProcessor(cam_type=cam_type)
+
+    def _create_save_button(self):
+        save_button = QPushButton(self.SAVE_BUTTON_TEXT)
+        save_button.setFont(self.SAVE_BUTTON_FONT)
+        save_button.setFixedSize(self.SAVE_BUTTON_SIZE, self.SAVE_BUTTON_SIZE)
+        return save_button
 
     def update_frame(self, pixmap, emoji_path):
         self.video_label.setPixmap(pixmap)
+        self._update_emoji_label(emoji_path)
+
+    def _update_emoji_label(self, emoji_path):
         if emoji_path:
             emoji_pixmap = QPixmap(emoji_path)
-            self.emoji_label.setPixmap(emoji_pixmap.scaledToHeight(100))
+            self.emoji_label.setPixmap(emoji_pixmap.scaledToHeight(self.EMOJI_LABEL_HEIGHT))
         else:
             self.emoji_label.clear()
-            self.emoji_label.setText("Emotion")
+            self.emoji_label.setText(self.DEFAULT_EMOJI_LABEL_TEXT)
+
     def closeEvent(self, event):
         self.video_processor.stop()
         event.accept()
