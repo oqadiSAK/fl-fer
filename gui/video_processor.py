@@ -1,9 +1,7 @@
 import cv2
 import torch
-from PyQt6.QtCore import QThread, pyqtSignal, QSize
+from PyQt6.QtCore import QThread, pyqtSignal
 from PyQt6.QtGui import QPixmap, QImage
-from PyQt6.QtWidgets import QApplication, QWidget, QVBoxLayout, QLabel, QPushButton, QHBoxLayout
-from picamera2 import Picamera2
 from centralized.model import Model
 
 class VideoProcessor(QThread):
@@ -12,9 +10,7 @@ class VideoProcessor(QThread):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.picam2 = Picamera2()
-        self.picam2.configure(self.picam2.create_preview_configuration(main={"format": 'XRGB8888', "size": (320, 240)}))  # Adjust size here
-        self.picam2.start()
+        self.cap = cv2.VideoCapture(0)  # Open default camera
         self._face_classifier = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_frontalface_default.xml")
         self.running = True
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -26,7 +22,9 @@ class VideoProcessor(QThread):
 
     def run(self):
         while self.running:
-            frame = self.picam2.capture_array()
+            ret, frame = self.cap.read()  # Capture frame-by-frame
+            if not ret:
+                break
             processed_frame, emoji_path = self._detect_bounding_box(frame)
             pixmap = self._create_pixmap(processed_frame)
             self.frame_processed.emit(pixmap, emoji_path)
@@ -34,6 +32,7 @@ class VideoProcessor(QThread):
 
     def stop(self):
         self.running = False
+        self.cap.release()  # Release the VideoCapture
         self.wait()
 
     def _detect_bounding_box(self, vid):
