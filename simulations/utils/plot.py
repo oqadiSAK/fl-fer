@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from sklearn.metrics import confusion_matrix
 
-def plot_confusion_matrix(y_true, y_pred, classes, title='Confusion matrix', cmap=plt.cm.Blues):
+def plot_confusion_matrix(y_true, y_pred, classes, filename, title='Confusion matrix', cmap=plt.cm.Blues):
     cm = confusion_matrix(y_true, y_pred)
     plt.imshow(cm, interpolation='nearest', cmap=cmap)
     plt.title(title)
@@ -21,8 +21,15 @@ def plot_confusion_matrix(y_true, y_pred, classes, title='Confusion matrix', cma
     plt.tight_layout()
     plt.ylabel('True label')
     plt.xlabel('Predicted label')
+    plt.savefig(f'output/{filename}.png')
+    plt.close()
+    
+def plot_loss_accuracy(train_metrics, filename):
+    train_loss = train_metrics["train_loss_values"]
+    val_loss = train_metrics["val_loss_values"]
+    train_acc = train_metrics["train_acc_values"]
+    val_acc = train_metrics["val_acc_values"]
 
-def plot_loss_accuracy(train_loss, val_loss, train_acc, val_acc):
     epochs = range(1, len(train_loss) + 1)
 
     plt.figure(figsize=(12, 5))
@@ -42,5 +49,6 @@ def plot_loss_accuracy(train_loss, val_loss, train_acc, val_acc):
     plt.xlabel('Epochs')
     plt.ylabel('Accuracy')
     plt.legend()
-
     plt.tight_layout()
+    plt.savefig(f'output/{filename}.png')
+    plt.close()

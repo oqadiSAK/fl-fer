@@ -1,7 +1,7 @@
 import sys
 import argparse
 from PyQt6.QtWidgets import QApplication
-from gui.main_window import MainWindow
+from main_window import MainWindow
 
 def main():
     parser = argparse.ArgumentParser()

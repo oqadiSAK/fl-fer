@@ -33,7 +33,7 @@ class DataSetFactory:
                     public_emotions.append(int(row[0]))
                     public_images.append(Image.fromarray(face))
 
-        print('training size %d : private val size %d : public val size %d' % (
+        print('Training size %d : Validation size %d : Test size %d' % (
             len(images), len(private_images), len(public_images)))
         train_transform = transforms.Compose([
             transforms.RandomCrop(self.shape[0]),
