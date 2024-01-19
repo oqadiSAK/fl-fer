@@ -5,7 +5,7 @@ from utils.mappers import map_eval_metrics, map_train_metrics
 from utils.training import train ,evaluate
 from utils.loaders import load_data_loaders, load_model
 
-EPOCH_PER_ROUND = 1
+EPOCH_PER_ROUND = 2
 LEARNING_RATE = 0.01
 MOMENTUM = 0.9
 WEIGHT_DECAY = 5e-3

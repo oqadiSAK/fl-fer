@@ -3,13 +3,13 @@ import flwr as fl
 from collections import OrderedDict
 from typing import List, Tuple, Dict, Optional
 from flwr.common import Metrics
+from utils.plot import plot_fl_centralized_metrics, plot_fl_distributed_evaluation_metrics, plot_fl_distributed_fit_metrics, plot_fl_losses
 from utils.mappers import map_eval_metrics
 from utils.training import evaluate
 from utils.loaders import load_data_loaders, load_model
 
 # Define metric aggregation function
 def weighted_average(metrics: List[Tuple[int, Metrics]]) -> Metrics:
-    print(metrics)
     examples = [num_examples for num_examples, _ in metrics]
 
     # Multiply accuracy of each client by number of examples used
@@ -67,6 +67,12 @@ strategy = fl.server.strategy.FedAvg(
 # Start Flower server
 history = fl.driver.start_driver(
     server_address="0.0.0.0:9091",
-    config=fl.server.ServerConfig(num_rounds=1),
+    config=fl.server.ServerConfig(num_rounds=50),
     strategy=strategy,
 )
+
+print(history)
+plot_fl_losses(history)
+plot_fl_distributed_fit_metrics(history)
+plot_fl_distributed_evaluation_metrics(history)
+plot_fl_centralized_metrics(history)
