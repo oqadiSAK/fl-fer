@@ -6,7 +6,6 @@ import os
 import numpy as np
 from PyQt6.QtCore import QThread, QMutex, QWaitCondition, pyqtSignal
 from PyQt6.QtGui import QPixmap, QImage
-from model import Model
 
 class VideoProcessor(QThread):
     FPS = 60

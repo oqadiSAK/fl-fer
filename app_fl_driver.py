@@ -1,11 +1,89 @@
+import socket
+import threading
 import torch
 import flwr as fl
+import logging
 from collections import OrderedDict
 from typing import Tuple, Dict, Optional
 from utils.mappers import map_eval_metrics
 from utils.training import evaluate
 from utils.loaders import load_model, load_test_loader
 
+logging.basicConfig(level=logging.INFO)
+
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+model = load_model(device)
+test_loader = load_test_loader()
+
+class Driver:
+    def __init__(self, address, port):
+        self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.server.bind((address, port))
+        self.server.listen(50)
+        self.server.settimeout(1)
+        self.clients = []
+        self.lock = threading.Lock()
+        self.running = True
+
+    def broadcast(self, message):
+        for client in self.clients:
+            client.send(message.encode())
+
+    def handle_client(self, client_socket, client_address):
+        while self.running:
+            try:
+                request = client_socket.recv(1024).decode()
+                if request == "TRIGGER_FL":
+                    with self.lock:
+                        logging.info("Received TRIGGER_FL message.")
+                        self.broadcast("FL_STARTED")
+                        try:
+                            start_flower_driver()
+                        except Exception as e:
+                            logging.error(f"FL round failed: {e}")
+                            self.broadcast("FL_ERROR")
+                        self.broadcast("FL_ENDED")
+            except ConnectionResetError:
+                logging.info('Client with the IP %s has DISCONECCTED', client_address[0])
+                break
+
+    def start(self):
+        logging.info("Waiting for clients...")
+        try:
+            while self.running:
+                try:
+                    client_socket, client_address = self.server.accept()
+                    logging.info('Client with the IP %s has CONNECTED', client_address[0])
+                    self.clients.append(client_socket)
+
+                    client_thread = threading.Thread(target=self.handle_client, args=(client_socket, client_address))
+                    client_thread.start()
+                except socket.timeout:
+                    continue
+        except KeyboardInterrupt:
+            self.stop()
+
+    def stop(self):
+        self.running = False
+        for client in self.clients:
+            client.close()
+        self.server.close()
+
+def start_flower_driver():
+    logging.info("Triggering FL.")
+    strategy = fl.server.strategy.FedAvg(
+        fraction_fit=1.0,  
+        min_available_clients=2,
+        evaluate_fn=centralized_evaluate,
+    )
+
+    history = fl.driver.start_driver(
+        server_address="192.168.1.102:9091",
+        strategy=strategy,
+    )
+
+    logging.info("FL round finished.")
+    print(history)
 
 def centralized_evaluate(
     server_round: int,
@@ -18,22 +96,9 @@ def centralized_evaluate(
     loss, _, metrics = evaluate(model, device, test_loader)
     return loss, map_eval_metrics(metrics)
 
-
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-model = load_model(device)
-test_loader = load_test_loader()
-
-# Define strategy
-strategy = fl.server.strategy.FedAvg(
-    fraction_fit=1.0,  
-    min_available_clients=2,
-    evaluate_fn=centralized_evaluate,
-)
-
-# Start Flower server
-history = fl.driver.start_driver(
-    server_address="192.168.1.102:9091",
-    strategy=strategy,
-)
-
-print(history)
+if __name__ == "__main__":
+    server = Driver('192.168.1.102', 9093)
+    try:
+        server.start()
+    except KeyboardInterrupt:
+        server.stop()
