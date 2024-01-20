@@ -7,7 +7,7 @@ from model import Model
 from torch.utils.data import DataLoader
 from torch.utils.data import Subset
 
-_CLASSES = ['Angry', 'Disgust', 'Fear', 'Happy', 'Sad', 'Surprise', 'Neutral']
+CLASSES = ['Angry', 'Disgust', 'Fear', 'Happy', 'Sad', 'Surprise', 'Neutral']
 _SHAPE = (44, 44)
 
 _TRAIN_TRANSFORM = transforms.Compose([
@@ -60,7 +60,7 @@ def load_dynamic_train_loader(batch_size=128, num_workers=0):
         raise
 
 def load_model(device):
-    model = Model(num_classes=len(_CLASSES)).to(device)
+    model = Model(num_classes=len(CLASSES)).to(device)
     return model
 
 def _get_datasets():
