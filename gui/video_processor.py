@@ -36,6 +36,9 @@ class VideoProcessor(QThread):
         self.frame = None
         self.last_emotion = None
         
+        if not os.path.isfile(self.LOCAL_SAVES_CSV):
+            pd.DataFrame(columns=['emotion', 'pixels']).to_csv(self.LOCAL_SAVES_CSV, mode='w', index=False)
+        
     def run(self):
         while self.running:
             self.mutex.lock()
