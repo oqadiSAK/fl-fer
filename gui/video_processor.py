@@ -10,7 +10,7 @@ from model import Model
 
 class VideoProcessor(QThread):
     FPS = 60
-    FRAME_SIZE = (44, 44)
+    FRAME_SIZE = (48, 48)
     EMOTIONS = ['Angry', 'Disgust', 'Fear', 'Happy', 'Sad', 'Surprise', 'Neutral']
     EMOJI_DICT = {emotion: f'{emotion}.png' for emotion in EMOTIONS}
     frame_processed = pyqtSignal(QPixmap, str)
