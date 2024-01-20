@@ -46,7 +46,7 @@ def start_client(model, device):
     
     # Start Flower client
     fl.client.start_numpy_client(
-        server_address="172.20.171.144:9092",  
+        server_address="192.168.1.102:9092",  
         client=FlowerClient(model, device, test_loader, validation_loader),
         transport="grpc-rere", 
     )
