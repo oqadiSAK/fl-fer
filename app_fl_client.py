@@ -36,7 +36,7 @@ class FlowerClient(fl.client.NumPyClient):
 
     def evaluate(self, parameters, config):
         self.set_parameters(parameters)
-        return 0, 0, {}
+        return 0.0, 0, {}
 
 def start_client(model, device):
     test_loader = load_test_loader()
