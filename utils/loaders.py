@@ -82,7 +82,8 @@ def _get_dynamic_dataset(threshold=5):
     if len(images) < threshold:
         raise ValueError(f"Number of images is less than the threshold value {threshold}")
     else:
-        open('gui/local/local_saves.csv', 'w').close()
+        with open('gui/local/local_saves.csv', 'w') as file:
+            file.write('emotion,pixels\n')
 
     dynamic_dataset = DataSet(transform=_TRAIN_TRANSFORM, images=images, emotions=emotions)
     return dynamic_dataset

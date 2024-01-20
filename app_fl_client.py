@@ -1,8 +1,7 @@
 import flwr as fl
 import torch
 from collections import OrderedDict
-from utils.mappers import map_eval_metrics
-from utils.training import evaluate, train_without_validation
+from utils.training import train_without_validation
 from utils.loaders import load_dynamic_train_loader, load_test_loader
 
 EPOCH_PER_ROUND = 2
@@ -37,8 +36,7 @@ class FlowerClient(fl.client.NumPyClient):
 
     def evaluate(self, parameters, config):
         self.set_parameters(parameters)
-        loss, len, metrics = evaluate(self.model, self.device, self.test_loader)
-        return loss, len, map_eval_metrics(metrics)
+        return 0, 0, {}
 
 def start_client(model, device):
     test_loader = load_test_loader()

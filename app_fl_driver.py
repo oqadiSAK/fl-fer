@@ -1,22 +1,11 @@
 import torch
 import flwr as fl
 from collections import OrderedDict
-from typing import List, Tuple, Dict, Optional
-from flwr.common import Metrics
+from typing import Tuple, Dict, Optional
 from utils.mappers import map_eval_metrics
 from utils.training import evaluate
 from utils.loaders import load_model, load_test_loader
 
-def evaluate_weighted_average(metrics: List[Tuple[int, Metrics]]) -> Metrics:
-    examples = [num_examples for num_examples, _ in metrics]
-
-    # Multiply accuracy of each client by number of examples used
-    accuracies = [num_examples * m["accuracy"] for num_examples, m in metrics]
-
-    # Aggregate and return custom metric (weighted average)
-    return {
-        "accuracy": sum(accuracies) / sum(examples),
-    }
 
 def centralized_evaluate(
     server_round: int,
@@ -39,7 +28,6 @@ strategy = fl.server.strategy.FedAvg(
     fraction_fit=1.0,  
     min_available_clients=2,
     evaluate_fn=centralized_evaluate,
-    evaluate_metrics_aggregation_fn=evaluate_weighted_average,
 )
 
 # Start Flower server
