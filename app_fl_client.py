@@ -1,8 +1,9 @@
 import flwr as fl
 import torch
 from collections import OrderedDict
-from utils.training import train_without_validation
-from utils.loaders import load_dynamic_train_loader, load_test_loader
+from utils.mappers import map_eval_metrics
+from utils.training import evaluate, train_without_validation
+from utils.loaders import load_dynamic_train_loader, load_test_loader, load_test_loader_random_part
 
 EPOCH_PER_ROUND = 2
 LEARNING_RATE = 0.01
@@ -36,14 +37,15 @@ class FlowerClient(fl.client.NumPyClient):
 
     def evaluate(self, parameters, config):
         self.set_parameters(parameters)
-        return 0.0, 0, {}
+        loss, len, metrics = evaluate(self.model, self.device, self.test_loader)
+        return loss, len, map_eval_metrics(metrics)
 
 def start_client(model, device):
-    test_loader = load_test_loader()
+    test_loader_random_part = load_test_loader_random_part()
     
     # Start Flower client
     fl.client.start_numpy_client(
         server_address="192.168.1.102:9092",  
-        client=FlowerClient(model, device, test_loader),
+        client=FlowerClient(model, device, test_loader_random_part),
         transport="grpc-rere", 
     )

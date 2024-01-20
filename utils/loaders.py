@@ -5,6 +5,7 @@ from PIL import Image
 from utils.dataset import DataSet
 from model import Model
 from torch.utils.data import DataLoader
+from torch.utils.data import Subset
 
 _CLASSES = ['Angry', 'Disgust', 'Fear', 'Happy', 'Sad', 'Surprise', 'Neutral']
 _SHAPE = (44, 44)
@@ -35,6 +36,14 @@ def load_train_loader(batch_size=128, num_workers=0):
 def load_test_loader(batch_size=128, num_workers=0):
     test_dataset = _get_test_dataset()
     test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers)
+    return test_loader
+
+def load_test_loader_random_part(batch_size=128, num_workers=0, percentage=0.2):
+    test_dataset = _get_test_dataset()
+    num_samples = round(len(test_dataset) * percentage)
+    indices = np.random.choice(len(test_dataset), num_samples, replace=False)
+    test_dataset_part = Subset(test_dataset, indices)
+    test_loader = DataLoader(test_dataset_part, batch_size=batch_size, shuffle=True, num_workers=num_workers)
     return test_loader
 
 def load_validate_loader(batch_size=128, num_workers=0):
