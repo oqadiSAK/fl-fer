@@ -5,6 +5,7 @@ import flwr as fl
 import logging
 from collections import OrderedDict
 from typing import Tuple, Dict, Optional
+from strategy import CustomFedAvg
 from utils.mappers import map_eval_metrics
 from utils.training import evaluate
 from utils.loaders import load_model, load_test_loader
@@ -81,7 +82,7 @@ class Driver:
 
 def start_flower_driver():
     logging.info("Triggering FL.")
-    strategy = fl.server.strategy.FedAvg(
+    strategy = CustomFedAvg(
         fraction_fit=1.0,  
         min_available_clients=MIN_AVALIBLE_CLIENTS,
         evaluate_fn=centralized_evaluate,
@@ -105,7 +106,7 @@ def centralized_evaluate(
     model.load_state_dict(state_dict, strict=True)
     loss, _, metrics = evaluate(model, device, test_loader)
     return loss, map_eval_metrics(metrics)
-
+    
 if __name__ == "__main__":
     server = Driver('192.168.1.102', 9093)
     try:
