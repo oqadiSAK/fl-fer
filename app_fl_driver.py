@@ -5,7 +5,7 @@ from typing import List, Tuple, Dict, Optional
 from flwr.common import Metrics
 from utils.mappers import map_eval_metrics
 from utils.training import evaluate
-from utils.loaders import load_data_loaders, load_model
+from utils.loaders import load_model, load_test_loader
 
 def evaluate_weighted_average(metrics: List[Tuple[int, Metrics]]) -> Metrics:
     examples = [num_examples for num_examples, _ in metrics]
@@ -32,7 +32,7 @@ def centralized_evaluate(
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 model = load_model(device)
-_, test_loader, _ = load_data_loaders()
+test_loader = load_test_loader()
 
 # Define strategy
 strategy = fl.server.strategy.FedAvg(

@@ -3,7 +3,7 @@ import torch
 from collections import OrderedDict
 from utils.mappers import map_eval_metrics, map_train_metrics
 from utils.training import train ,evaluate
-from utils.loaders import load_data_loaders, load_dynamic_train_loader
+from utils.loaders import load_dynamic_train_loader, load_test_loader, load_validate_loader
 
 EPOCH_PER_ROUND = 2
 LEARNING_RATE = 0.01
@@ -42,7 +42,8 @@ class FlowerClient(fl.client.NumPyClient):
         return loss, len, map_eval_metrics(metrics)
 
 def start_client(model, device):
-    _, test_loader, validation_loader = load_data_loaders()
+    test_loader = load_test_loader()
+    validation_loader = load_validate_loader()
     
     # Start Flower client
     fl.client.start_numpy_client(
