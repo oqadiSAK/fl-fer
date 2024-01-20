@@ -46,6 +46,8 @@ class Driver:
                         self.broadcast("FL_ENDED")
             except ConnectionResetError:
                 logging.info('Client with the IP %s has DISCONECCTED', client_address[0])
+                with self.lock:
+                    self.clients.remove(client_socket)
                 break
 
     def start(self):
