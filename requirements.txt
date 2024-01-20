@@ -1,4 +1,13 @@
-keras==2.15.0
+flwr==1.6.0
 matplotlib==3.8.2
-numpy==1.26.2
+numpy==1.24.2
 opencv_python==4.8.1.78
+pandas==2.2.0
+picamera2==0.3.16
+Pillow==10.2.0
+PyQt6==6.6.1
+PyQt6_sip==13.4.1
+scikit_learn==1.4.0
+torch==2.1.2
+torchvision==0.16.2
+tqdm==4.66.1
