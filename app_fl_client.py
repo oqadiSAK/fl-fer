@@ -3,7 +3,7 @@ import torch
 from collections import OrderedDict
 from utils.mappers import map_eval_metrics, map_train_metrics
 from utils.training import train ,evaluate
-from utils.loaders import load_data_loaders, load_dynamic_train_loader, load_model
+from utils.loaders import load_data_loaders, load_dynamic_train_loader
 
 EPOCH_PER_ROUND = 2
 LEARNING_RATE = 0.01
@@ -41,14 +41,12 @@ class FlowerClient(fl.client.NumPyClient):
         loss, len, metrics = evaluate(self.model, self.device, self.test_loader)
         return loss, len, map_eval_metrics(metrics)
 
-def start_client():
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    model = load_model(device)
+def start_client(model, device):
     _, test_loader, validation_loader = load_data_loaders()
     
     # Start Flower client
     fl.client.start_numpy_client(
-        server_address="0.0.0.0:9092",  
+        server_address="172.20.171.144:9092",  
         client=FlowerClient(model, device, test_loader, validation_loader),
         transport="grpc-rere", 
     )

@@ -13,13 +13,13 @@ class MainWindow(QMainWindow):
     SAVE_BUTTON_TEXT = "SAVE"
     DEFAULT_EMOJI_LABEL_TEXT = "Emotion"
 
-    def __init__(self, cam_type):
+    def __init__(self, model, device, cam_type):
         super().__init__()
-        self._init_ui(cam_type)
+        self._init_ui(model, device, cam_type)
         self.video_processor.frame_processed.connect(self.update_frame)
         self.video_processor.start()
 
-    def _init_ui(self, cam_type):
+    def _init_ui(self, model, device, cam_type):
         self.setWindowTitle(self.WINDOW_TITLE)
         self.central_widget = QWidget()
         self.setCentralWidget(self.central_widget)
@@ -38,7 +38,7 @@ class MainWindow(QMainWindow):
         self.central_layout.addLayout(self.video_layout, self.VIDEO_LAYOUT_RATIO)
         self.central_layout.addLayout(self.actions_layout, self.ACTIONS_LAYOUT_RATIO)
 
-        self.video_processor = VideoProcessor(cam_type=cam_type)
+        self.video_processor = VideoProcessor(model, device, cam_type=cam_type)
 
     def _create_save_button(self):
         save_button = QPushButton(self.SAVE_BUTTON_TEXT)

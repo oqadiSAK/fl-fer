@@ -19,8 +19,7 @@ class DataSetFactory:
         ToTensor(),
     ])
     
-    def __init__(self, shape):
-        self.shape = shape
+    def __init__(self):
         images = []
         emotions = []
         private_images = []

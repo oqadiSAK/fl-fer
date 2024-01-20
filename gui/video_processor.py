@@ -6,7 +6,7 @@ import os
 import numpy as np
 from PyQt6.QtCore import QThread, QMutex, QWaitCondition, pyqtSignal
 from PyQt6.QtGui import QPixmap, QImage
-from centralized.model import Model
+from model import Model
 
 class VideoProcessor(QThread):
     FPS = 60
@@ -25,13 +25,13 @@ class VideoProcessor(QThread):
     FACE_DETECTION_MIN_NEIGHBORS = 5
     FACE_DETECTION_MIN_SIZE = (40, 40)
 
-    def __init__(self, cam_type, parent=None):
+    def __init__(self, model, device, cam_type, parent=None):
         super().__init__(parent)
         self.mutex = QMutex()
         self.wait_condition = QWaitCondition()
         self.paused = False
         self._setup_camera(cam_type)
-        self._setup_model()
+        self._setup_model(model, device)
         self.running = True
         self.frame = None
         self.last_emotion = None
@@ -99,14 +99,11 @@ class VideoProcessor(QThread):
     def _setup_cv_camera(self):
         self.cap = cv2.VideoCapture(self.CV_DEFAULT_CAMERA)
 
-    def _setup_model(self):
+    def _setup_model(self, model, device):
+        self.model = model
+        self.device = device
         self._face_classifier = cv2.CascadeClassifier(self.HAARCASCADE_PATH)
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        self.model = Model(num_classes=7)
-        checkpoint = torch.load("centralized/trained/private_model_234_65.t7")
-        self.model.load_state_dict(checkpoint['net'])
         self.model.eval()
-        self.model.to(self.device)
         
     def _detect_bounding_box(self, vid):
         gray_image = cv2.cvtColor(vid, cv2.COLOR_BGR2GRAY)
