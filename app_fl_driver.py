@@ -3,30 +3,9 @@ import flwr as fl
 from collections import OrderedDict
 from typing import List, Tuple, Dict, Optional
 from flwr.common import Metrics
-from utils.plot import plot_fl_centralized_metrics, plot_fl_distributed_evaluation_metrics, plot_fl_distributed_fit_metrics, plot_fl_losses
 from utils.mappers import map_eval_metrics
 from utils.training import evaluate
 from utils.loaders import load_data_loaders, load_model
-
-# Define metric aggregation function
-def weighted_average(metrics: List[Tuple[int, Metrics]]) -> Metrics:
-    examples = [num_examples for num_examples, _ in metrics]
-
-    # Multiply accuracy of each client by number of examples used
-    train_losses = [num_examples * m["train_loss"] for num_examples, m in metrics]
-    train_accuracies = [
-        num_examples * m["train_acc"] for num_examples, m in metrics
-    ]
-    val_losses = [num_examples * m["val_loss"] for num_examples, m in metrics]
-    val_accuracies = [num_examples * m["val_acc"] for num_examples, m in metrics]
-
-    # Aggregate and return custom metric (weighted average)
-    return {
-        "train_loss": sum(train_losses) / sum(examples),
-        "train_acc": sum(train_accuracies) / sum(examples),
-        "val_loss": sum(val_losses) / sum(examples),
-        "val_acc": sum(val_accuracies) / sum(examples),
-    }
 
 def evaluate_weighted_average(metrics: List[Tuple[int, Metrics]]) -> Metrics:
     examples = [num_examples for num_examples, _ in metrics]
@@ -59,14 +38,13 @@ _, test_loader, _ = load_data_loaders()
 strategy = fl.server.strategy.FedAvg(
     fraction_fit=1.0,  
     min_available_clients=2,
-    fit_metrics_aggregation_fn=weighted_average,
     evaluate_fn=centralized_evaluate,
     evaluate_metrics_aggregation_fn=evaluate_weighted_average,
 )
 
 # Start Flower server
 history = fl.driver.start_driver(
-    server_address="0.0.0.0:9091",
+    server_address="192.168.1.102:9091",
     config=fl.server.ServerConfig(num_rounds=50),
     strategy=strategy,
 )
