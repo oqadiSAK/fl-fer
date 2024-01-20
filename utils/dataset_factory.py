@@ -6,6 +6,19 @@ from torchvision.transforms import ToTensor
 from utils.dataset import DataSet
 
 class DataSetFactory:
+    SHAPE = (44, 44)
+    
+    TRAIN_TRANSFORM = transforms.Compose([
+        transforms.RandomCrop(SHAPE[0]), 
+        transforms.RandomHorizontalFlip(),
+        ToTensor(),
+    ])
+
+    VAL_TRANSFORM = transforms.Compose([
+        transforms.CenterCrop(SHAPE[0]),  
+        ToTensor(),
+    ])
+    
     def __init__(self, shape):
         self.shape = shape
         images = []
@@ -35,16 +48,30 @@ class DataSetFactory:
 
         print('Training size %d : Validation size %d : Test size %d' % (
             len(images), len(private_images), len(public_images)))
-        train_transform = transforms.Compose([
-            transforms.RandomCrop(self.shape[0]),
-            transforms.RandomHorizontalFlip(),
-            ToTensor(),
-        ])
-        val_transform = transforms.Compose([
-            transforms.CenterCrop(self.shape[0]),
-            ToTensor(),
-        ])
 
-        self.training = DataSet(transform=train_transform, images=images, emotions=emotions)
-        self.private = DataSet(transform=val_transform, images=private_images, emotions=private_emotions)
-        self.public = DataSet(transform=val_transform, images=public_images, emotions=public_emotions)
+        self.training = DataSet(transform=DataSetFactory.TRAIN_TRANSFORM, images=images, emotions=emotions)
+        self.private = DataSet(transform=DataSetFactory.VAL_TRANSFORM, images=private_images, emotions=private_emotions)
+        self.public = DataSet(transform=DataSetFactory.VAL_TRANSFORM, images=public_images, emotions=public_emotions)
+
+    
+    @staticmethod
+    def get_dynamic_dataset(threshold=5):
+        images = []
+        emotions = []
+        with open('gui/local/local_saves.csv', 'r') as csvin:
+            data = csv.reader(csvin)
+            next(data)
+            for row in data:
+                face = [int(pixel) for pixel in row[1].split()]
+                face = np.asarray(face).reshape(48, 48)
+                face = face.astype('uint8')
+                emotions.append(int(row[0]))
+                images.append(Image.fromarray(face))
+
+        if len(images) < threshold:
+            raise ValueError(f"Number of images is less than the threshold value {threshold}")
+        else:
+            open('gui/local/local_saves.csv', 'w').close()
+
+        dynamic_dataset = DataSet(transform=DataSetFactory.TRAIN_TRANSFORM, images=images, emotions=emotions)
+        return dynamic_dataset
