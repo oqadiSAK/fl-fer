@@ -14,6 +14,7 @@ logging.basicConfig(level=logging.INFO)
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 model = load_model(device)
 test_loader = load_test_loader()
+MIN_AVALIBLE_CLIENTS = 2
 
 class Driver:
     def __init__(self, address, port):
@@ -56,6 +57,11 @@ class Driver:
                     logging.info('Client with the IP %s has CONNECTED', client_address[0])
                     self.clients.append(client_socket)
 
+                    if len(self.clients) >= MIN_AVALIBLE_CLIENTS:  
+                        self.broadcast("READY")
+                    else:
+                        client_socket.send("WAITING".encode())
+
                     client_thread = threading.Thread(target=self.handle_client, args=(client_socket, client_address))
                     client_thread.start()
                 except socket.timeout:
@@ -73,7 +79,7 @@ def start_flower_driver():
     logging.info("Triggering FL.")
     strategy = fl.server.strategy.FedAvg(
         fraction_fit=1.0,  
-        min_available_clients=2,
+        min_available_clients=MIN_AVALIBLE_CLIENTS,
         evaluate_fn=centralized_evaluate,
     )
 

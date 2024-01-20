@@ -43,6 +43,8 @@ class MainWindow(QMainWindow):
         self.trigger_fl_button = self._create_trigger_fl_button()
         self.driver_connection.fl_ended.connect(self.trigger_fl_button.setEnabled)
         self.driver_connection.fl_started.connect(lambda: self.trigger_fl_button.setDisabled(True))
+        self.driver_connection.ready.connect(self.trigger_fl_button.setEnabled)
+        self.driver_connection.waiting.connect(lambda: self.trigger_fl_button.setDisabled(True))
         self.save_button = self._create_save_button()
         self.actions_layout.addWidget(self.emoji_label, alignment=Qt.AlignmentFlag.AlignCenter)
         self.actions_layout.addWidget(self.trigger_fl_button, alignment=Qt.AlignmentFlag.AlignCenter)
