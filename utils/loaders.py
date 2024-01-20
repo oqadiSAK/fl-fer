@@ -47,7 +47,7 @@ def load_dynamic_train_loader(batch_size=128, num_workers=0):
         dynamic_dataset = _get_dynamic_dataset()
         training_loader = DataLoader(dynamic_dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers)
         return training_loader
-    except ValueError as e:
+    except ValueError:
         raise
 
 def load_model(device):

@@ -75,6 +75,48 @@ def train(model, device, train_loader, val_loader, epochs, lr, momentum, weight_
         "val_acc_values": val_acc_values
     }
 
+def train_without_validation(model, device, train_loader, epochs, lr, momentum, weight_decay):
+    print('Training without validation started')
+    optimizer = torch.optim.SGD(model.parameters(), lr=lr, momentum=momentum, weight_decay=weight_decay)
+    criterion = nn.CrossEntropyLoss()
+
+    train_loss_values = []
+    train_acc_values = []
+
+    for epoch in range(epochs):
+        model.train()
+        total = 0
+        correct = 0
+        total_train_loss = 0
+        pbar = tqdm(enumerate(train_loader), total=len(train_loader), leave=False)
+        for i, (x_train, y_train) in pbar:
+            optimizer.zero_grad()
+            x_train = x_train.to(device)
+            y_train = y_train.to(device)
+            y_predicted = model(x_train)
+            loss = criterion(y_predicted, y_train)
+            loss.backward()
+            optimizer.step()
+            _, predicted = torch.max(y_predicted.data, 1)
+            total_train_loss += loss.data.item()
+            total += y_train.size(0)
+            correct += predicted.eq(y_train.data).sum()
+
+            pbar.set_description(f"Epoch {epoch+1}/{epochs}")
+            pbar.set_postfix({"Training Loss": total_train_loss / (i + 1), "Accuracy": 100. * float(correct) / total})
+
+        accuracy = 100. * float(correct) / total
+        print('Epoch [%d/%d] Training Loss: %.4f, Accuracy: %.4f' % (
+            epoch + 1, epochs, total_train_loss / (i + 1), accuracy))
+
+        train_loss_values.append(total_train_loss / (i + 1))
+        train_acc_values.append(accuracy)
+
+    return len(train_loader.dataset), {
+        "train_loss_values": train_loss_values,
+        "train_acc_values": train_acc_values
+    }
+    
 def evaluate(model, device, test_loader):
     print('Evaluating model')
     criterion = nn.CrossEntropyLoss()
