@@ -48,6 +48,8 @@ class Driver:
                 logging.info('Client with the IP %s has DISCONECCTED', client_address[0])
                 with self.lock:
                     self.clients.remove(client_socket)
+                    if len(self.clients) < MIN_AVALIBLE_CLIENTS:
+                        self.broadcast("WAITING")
                 break
 
     def start(self):
