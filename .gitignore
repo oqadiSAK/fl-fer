@@ -1,18 +1,18 @@
 # DATASET AND OUTPUT
 
-# Ignore all files in simulations/data directory except README.md
-simulations/data/*
-!simulations/data/README.md
+# Ignore all files in data directory except README.md
+data/*
+!data/README.md
 
-# Ignore all files in simulations/trained directory except README.md
-simulations/trained/*
-!simulations/trained/README.md
+# Ignore all files in trained directory except README.md
+trained/*
+!trained/README.md
 
-# Ignore all files in simulations/output directory except README.md
-simulations/output/*
-!simulations/output/README.md
+# Ignore all files in output directory except README.md
+output/*
+!output/README.md
 
-# Ignore all files in simulations/trained directory except README.md
+# Ignore all files in trained directory except README.md
 gui/local/*
 !gui/local/README.md
 
