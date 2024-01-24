@@ -6,8 +6,8 @@ import pandas as pd
 class FrameProcessor:
     FACE_DETECTION_SCALE_FACTOR = 1.1
     FACE_DETECTION_MIN_NEIGHBORS = 5
-    SAVED_FRAMES_DIR = 'saved_frames'
-    LOCAL_SAVES_CSV = 'local_saves.csv'
+    SAVED_FRAMES_DIR = 'gui/local/saved_frames'
+    LOCAL_SAVES_CSV = 'gui/local/local_saves.csv'
     
     def __init__(self, model):
         self.model = model

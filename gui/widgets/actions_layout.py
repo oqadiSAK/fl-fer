@@ -56,7 +56,7 @@ class ActionsLayout(QVBoxLayout):
         dialog.setLayout(layout)
 
         radio_buttons = []
-        for emotion in self.video_processor.EMOTIONS:
+        for emotion in self.video_processor.model.EMOTIONS:
             radio_button = QRadioButton(emotion)
             layout.addWidget(radio_button)
             radio_buttons.append(radio_button)
