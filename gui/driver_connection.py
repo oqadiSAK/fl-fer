@@ -11,17 +11,17 @@ class DriverConnection(QThread):
     waiting = pyqtSignal()
     status_changed = pyqtSignal(str)
     
-    def __init__(self, address='192.168.1.102', port=9093):
+    def __init__(self, ip, port):
         super().__init__()
-        self.address = address
+        self.ip = ip
         self.port = port
         self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.connected_event = Event()
 
     def run(self):
-        log(INFO, f"Connecting to driver at {self.address}:{self.port}")
+        log(INFO, f"Connecting to driver at {self.ip}:{self.port}")
         try:
-            self.client_socket.connect((self.address, self.port))
+            self.client_socket.connect((self.ip, self.port))
             self.connected_event.set()
             log(INFO, f"Connected to driver")
         except Exception as e:

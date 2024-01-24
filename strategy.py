@@ -6,6 +6,7 @@ from typing import Dict, List, Optional, Tuple, Union
 
 from flwr.common import (
     FitRes,
+    EvaluateRes,
     NDArrays,
     Parameters,
     Scalar,
@@ -66,3 +67,12 @@ class CustomFedAvg(fl.server.strategy.FedAvg):
             for layer_updates in zip(*weighted_weights)
         ]
         return weights_prime
+    
+    def aggregate_evaluate(
+        self,
+        server_round: int,
+        results: List[Tuple[ClientProxy, EvaluateRes]],
+        failures: List[Union[Tuple[ClientProxy, EvaluateRes], BaseException]],
+    ) -> Tuple[Optional[float], Dict[str, Scalar]]:
+        return None, {}
+       

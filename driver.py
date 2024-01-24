@@ -1,3 +1,4 @@
+import argparse
 import socket
 import threading
 import torch
@@ -18,7 +19,7 @@ test_loader = load_test_loader()
 MIN_AVALIBLE_CLIENTS = 2
 
 class Driver:
-    def __init__(self, address, port):
+    def __init__(self, port, address=''):
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server.bind((address, port))
         self.server.listen(50)
@@ -80,7 +81,7 @@ class Driver:
             client.close()
         self.server.close()
 
-def start_flower_driver():
+def start_flower_driver(server_address):
     logging.info("Triggering FL.")
     strategy = CustomFedAvg(
         fraction_fit=1.0,  
@@ -89,7 +90,7 @@ def start_flower_driver():
     )
 
     history = fl.driver.start_driver(
-        server_address="192.168.1.102:9091",
+        server_address=server_address,
         strategy=strategy,
     )
 
@@ -108,8 +109,17 @@ def centralized_evaluate(
     return loss, map_eval_metrics(metrics)
     
 if __name__ == "__main__":
-    server = Driver('192.168.1.102', 9093)
+    parser = argparse.ArgumentParser(description='Process some integers.')
+    parser.add_argument('--port', default=9093, type=int, help='Port')
+    parser.add_argument('--server_ip', default='localhost', type=str, help='Server IP')
+    parser.add_argument('--server_port', default=9091, type=int, help='Server port')
+
+    args = parser.parse_args()
+
+    server = Driver(args.port)
     try:
         server.start()
     except KeyboardInterrupt:
         server.stop()
+
+    start_flower_driver(server_address=f"{args.server_ip}:{args.server_port}")

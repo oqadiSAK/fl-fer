@@ -1,9 +1,8 @@
 import flwr as fl
 import torch
 from collections import OrderedDict
-from utils.mappers import map_eval_metrics
-from utils.training import evaluate, train_without_validation
-from utils.loaders import load_dynamic_train_loader, load_test_loader, load_test_loader_random_part
+from utils.training import train_without_validation
+from utils.loaders import load_dynamic_train_loader
 
 EPOCH_PER_ROUND = 2
 LEARNING_RATE = 0.01
@@ -11,10 +10,9 @@ MOMENTUM = 0.9
 WEIGHT_DECAY = 5e-3
 
 class FlowerClient(fl.client.NumPyClient):
-    def __init__(self, model, device, test_loader):
+    def __init__(self, model, device):
         self.model = model
         self.device = device
-        self.test_loader = test_loader
 
     def get_parameters(self, config):
         return [val.cpu().numpy() for _, val in self.model.state_dict().items()]
@@ -34,18 +32,15 @@ class FlowerClient(fl.client.NumPyClient):
         except ValueError as e:
             print(e)
             return self.get_parameters(config), 0, {}
-
+    
+    # We dont want to evaluate the model on the client side as our edge devices are not powerful enough
     def evaluate(self, parameters, config):
         self.set_parameters(parameters)
-        loss, len, metrics = evaluate(self.model, self.device, self.test_loader)
-        return loss, len, map_eval_metrics(metrics)
+        return 0.0, 0, {}
 
-def start_client(model, device):
-    test_loader_random_part = load_test_loader_random_part()
-    
-    # Start Flower client
+def start_client(model, device, server_address):
     fl.client.start_numpy_client(
-        server_address="192.168.1.102:9092",  
-        client=FlowerClient(model, device, test_loader_random_part),
+        server_address=server_address,  
+        client=FlowerClient(model, device),
         transport="grpc-rere", 
     )

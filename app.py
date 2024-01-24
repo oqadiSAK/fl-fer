@@ -11,12 +11,18 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--cam-type", choices=["pi", "cv"], required=True, 
                         help="Camera type to use: 'pi' for Picamera2, 'cv' for OpenCV VideoCapture")
+    parser.add_argument('--server_ip', default='localhost', type=str, help='Server address')
+    parser.add_argument('--server_port', default=9092, type=int, help='Server port')
+    parser.add_argument('--driver_ip', default='localhost', type=str, help='Driver address')
+    parser.add_argument('--driver_port', default=9093, type=int, help='Driver port')
+    
     args = parser.parse_args()
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = load_model(device)
 
-    flower_client_thread = threading.Thread(target=start_client, args=(model, device,))
+    server_address = f"{args.server_ip}:{args.server_port}"
+    flower_client_thread = threading.Thread(target=start_client, args=(model, device, server_address, ))
     flower_client_thread.start()
     
     app = QApplication(sys.argv)
