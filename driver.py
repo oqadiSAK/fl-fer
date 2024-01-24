@@ -19,7 +19,8 @@ test_loader = load_test_loader()
 MIN_AVALIBLE_CLIENTS = 2
 
 class Driver:
-    def __init__(self, port, address=''):
+    def __init__(self, port, server_address, address=''):
+        self.server_adress = server_address
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server.bind((address, port))
         self.server.listen(50)
@@ -41,7 +42,7 @@ class Driver:
                         logging.info("Received TRIGGER_FL message.")
                         self.broadcast("FL_STARTED")
                         try:
-                            start_flower_driver()
+                            start_flower_driver(self.server_adress)
                         except Exception as e:
                             logging.error(f"FL round failed: {e}")
                             self.broadcast("FL_ERROR")
@@ -116,10 +117,8 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    server = Driver(args.port)
+    server = Driver(args.port, server_address=f"{args.server_ip}:{args.server_port}")
     try:
         server.start()
     except KeyboardInterrupt:
         server.stop()
-
-    start_flower_driver(server_address=f"{args.server_ip}:{args.server_port}")
