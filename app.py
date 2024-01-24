@@ -4,7 +4,7 @@ import threading
 import torch
 from PyQt6.QtWidgets import QApplication
 from client import start_client
-from gui.main_window import MainWindow
+from gui.widgets.main_window import MainWindow
 from utils.loaders import load_model
 
 def main():

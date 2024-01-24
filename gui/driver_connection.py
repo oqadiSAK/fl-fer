@@ -26,7 +26,7 @@ class DriverConnection(QThread):
             log(INFO, f"Connected to driver")
         except Exception as e:
             log(ERROR, f"Failed to connect to driver: {e}")
-            self.status_changed.emit("FL_ERROR")  # Emit signal with "FL_ERROR"
+            self.status_changed.emit("FL_ERROR")
             return
         while True:
             try:
@@ -34,26 +34,26 @@ class DriverConnection(QThread):
                 if data == b'READY':
                     log(INFO, f"Received READY from driver")
                     self.ready.emit()
-                    self.status_changed.emit("READY")  # Emit signal with "READY"
+                    self.status_changed.emit("READY")
                 elif data == b'WAITING':
                     log(INFO, f"Received WAITING from driver")
                     self.waiting.emit() 
-                    self.status_changed.emit("WAITING")  # Emit signal with "WAITING"
+                    self.status_changed.emit("WAITING")
                 elif data == b'FL_STARTED':
                     log(INFO, f"Received FL_STARTED from driver")
                     self.fl_started.emit()
-                    self.status_changed.emit("FL_RUNNING")  # Emit signal with "FL_RUNNING"
+                    self.status_changed.emit("FL_RUNNING")
                 elif data == b'FL_ENDED':
                     log(INFO, f"Received FL_ENDED from driver")
                     self.fl_ended.emit()
-                    self.status_changed.emit("IDLE")  # Emit signal with "IDLE"
+                    self.status_changed.emit("IDLE")
             except ConnectionResetError:
                 log(ERROR, "Driver has disconnected")
-                self.status_changed.emit("FL_ERROR")  # Emit signal with "FL_ERROR"
+                self.status_changed.emit("FL_ERROR")
                 break
             except Exception as e:
                 log(ERROR, f"Failed to read from driver: {e}")
-                self.status_changed.emit("FL_ERROR")  # Emit signal with "FL_ERROR"
+                self.status_changed.emit("FL_ERROR")
                 break
 
     def trigger_fl(self):
