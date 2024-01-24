@@ -1,7 +1,7 @@
 import socket
 import threading
 from logging import INFO, ERROR
-from strategy import CustomFedAvg
+from fl.strategy import CustomFedAvg
 from flwr.common.logger import log
 from logging import INFO
 import flwr as fl
