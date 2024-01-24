@@ -26,7 +26,7 @@ def main():
     flower_client_thread.start()
     
     app = QApplication(sys.argv)
-    window = MainWindow(model, device, cam_type=args.cam_type)
+    window = MainWindow(model, device, args.cam_type, args.driver_ip, args.driver_port)
     window.resize(480, 360)  
     window.show()
     sys.exit(app.exec())
