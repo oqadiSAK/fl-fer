@@ -9,7 +9,7 @@ from PyQt6.QtGui import QPixmap, QImage
 
 class VideoProcessor(QThread):
     FPS = 60
-    FRAME_SIZE = (48, 48)
+    FRAME_SIZE = (44, 44)
     EMOTIONS = ['Angry', 'Disgust', 'Fear', 'Happy', 'Sad', 'Surprise', 'Neutral']
     EMOJI_DICT = {emotion: f'{emotion}.png' for emotion in EMOTIONS}
     frame_processed = pyqtSignal(QPixmap, str)
@@ -22,7 +22,6 @@ class VideoProcessor(QThread):
     EMOJI_FOLDER = 'gui/emojis/'
     FACE_DETECTION_SCALE_FACTOR = 1.1
     FACE_DETECTION_MIN_NEIGHBORS = 5
-    FACE_DETECTION_MIN_SIZE = (40, 40)
 
     def __init__(self, model, device, cam_type, parent=None):
         super().__init__(parent)
@@ -116,7 +115,7 @@ class VideoProcessor(QThread):
     def _get_best_face(self, gray_image):
         faces = self._face_classifier.detectMultiScale(gray_image, self.FACE_DETECTION_SCALE_FACTOR, 
                                                        self.FACE_DETECTION_MIN_NEIGHBORS, 
-                                                       minSize=self.FACE_DETECTION_MIN_SIZE)
+                                                       minSize=self.FRAME_SIZE)
         largest_area = 0
         best_face = None
         for (x, y, w, h) in faces:
