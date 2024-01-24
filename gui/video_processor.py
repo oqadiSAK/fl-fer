@@ -8,7 +8,7 @@ from PyQt6.QtCore import QThread, QMutex, QWaitCondition, pyqtSignal
 from PyQt6.QtGui import QPixmap, QImage
 
 class VideoProcessor(QThread):
-    FPS = 60
+    FPS = 30
     FRAME_SIZE = (44, 44)
     EMOTIONS = ['Angry', 'Disgust', 'Fear', 'Happy', 'Sad', 'Surprise', 'Neutral']
     EMOJI_DICT = {emotion: f'{emotion}.png' for emotion in EMOTIONS}
