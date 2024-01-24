@@ -3,15 +3,14 @@ import socket
 import threading
 import torch
 import flwr as fl
-import logging
 from collections import OrderedDict
 from typing import Tuple, Dict, Optional
 from strategy import CustomFedAvg
 from utils.mappers import map_eval_metrics
 from utils.training import evaluate
 from utils.loaders import load_model, load_test_loader
-
-logging.basicConfig(level=logging.INFO)
+from logging import INFO, ERROR
+from flwr.common.logger import log
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 model = load_model(device)
@@ -39,16 +38,16 @@ class Driver:
                 request = client_socket.recv(1024).decode()
                 if request == "TRIGGER_FL":
                     with self.lock:
-                        logging.info("Received TRIGGER_FL message.")
+                        log(INFO, "Received TRIGGER_FL message.")
                         self.broadcast("FL_STARTED")
                         try:
                             start_flower_driver(self.server_adress)
                         except Exception as e:
-                            logging.error(f"FL round failed: {e}")
+                            log(ERROR, f"FL round failed: {e}")
                             self.broadcast("FL_ERROR")
                         self.broadcast("FL_ENDED")
             except ConnectionResetError:
-                logging.info('Client with the IP %s has DISCONECCTED', client_address[0])
+                log(INFO, f'Client with the IP {client_address[0]} has DISCONECCTED')
                 with self.lock:
                     self.clients.remove(client_socket)
                     if len(self.clients) < MIN_AVALIBLE_CLIENTS:
@@ -56,12 +55,12 @@ class Driver:
                 break
 
     def start(self):
-        logging.info("Waiting for clients...")
+        log(INFO, "Waiting for clients...")
         try:
             while self.running:
                 try:
                     client_socket, client_address = self.server.accept()
-                    logging.info('Client with the IP %s has CONNECTED', client_address[0])
+                    log(INFO, f'Client with the IP {client_address[0]} has CONNECTED')
                     self.clients.append(client_socket)
 
                     if len(self.clients) >= MIN_AVALIBLE_CLIENTS:  
@@ -83,7 +82,7 @@ class Driver:
         self.server.close()
 
 def start_flower_driver(server_address):
-    logging.info("Triggering FL.")
+    log(INFO, "Triggering FL.")
     strategy = CustomFedAvg(
         fraction_fit=1.0,  
         min_available_clients=MIN_AVALIBLE_CLIENTS,
@@ -95,7 +94,7 @@ def start_flower_driver(server_address):
         strategy=strategy,
     )
 
-    logging.info("FL round finished.")
+    log(INFO, "FL round finished.")
     print(history)
 
 def centralized_evaluate(
