@@ -2,7 +2,7 @@ import flwr as fl
 import numpy as np
 from functools import reduce
 from logging import WARNING
-from typing import Dict, List, Optional, Tuple, Union, override
+from typing import Dict, List, Optional, Tuple, Union
 from flwr.common import (
     FitRes,
     EvaluateRes,
@@ -16,8 +16,6 @@ from flwr.common.logger import log
 from flwr.server.client_proxy import ClientProxy
 
 class CustomFedAvg(fl.server.strategy.FedAvg):
-    
-    @override
     def aggregate_fit(
         self,
         server_round: int,
@@ -45,8 +43,6 @@ class CustomFedAvg(fl.server.strategy.FedAvg):
 
         return parameters_aggregated, metrics_aggregated
     
-        
-    @override
     def aggregate_evaluate(
         self,
         server_round: int,
