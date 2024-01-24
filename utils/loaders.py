@@ -3,7 +3,7 @@ import numpy as np
 import csv
 from PIL import Image
 from utils.dataset import DataSet
-from model import Model
+from model import VGG19
 from torch.utils.data import DataLoader
 from torch.utils.data import Subset
 
@@ -60,7 +60,7 @@ def load_dynamic_train_loader(batch_size=128, num_workers=0):
         raise
 
 def load_model(device):
-    model = Model(num_classes=len(CLASSES)).to(device)
+    model = VGG19(num_classes=len(CLASSES)).to(device)
     return model
 
 def _get_datasets():
