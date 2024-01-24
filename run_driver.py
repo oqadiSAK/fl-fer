@@ -32,7 +32,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    server = Driver(args.port, server_address=f"{args.server_ip}:{args.server_port}")
+    server = Driver(args.port, f"{args.server_ip}:{args.server_port}", MIN_AVAILABLE_CLIENTS, centralized_evaluate)
     try:
         server.start()
     except KeyboardInterrupt:

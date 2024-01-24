@@ -8,8 +8,10 @@ import flwr as fl
 
 
 class Driver:
-    def __init__(self, port, server_address, address=''):
+    def __init__(self, port, server_address, min_available_clients, centralized_evaluate_fn, address=''):
         self.server_address = server_address
+        self.min_available_clients = min_available_clients
+        self.centralized_evaluate_fn = centralized_evaluate_fn
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server.bind((address, port))
         self.server.listen(50)
@@ -31,7 +33,7 @@ class Driver:
                         log(INFO, "Received TRIGGER_FL message.")
                         self.broadcast("FL_STARTED")
                         try:
-                            start_flower_driver(self.server_address)
+                            start_flower_driver(self.server_address, self.min_available_clients, self.centralized_evaluate_fn)
                         except Exception as e:
                             log(ERROR, f"FL round failed: {e}")
                             self.broadcast("FL_ERROR")
