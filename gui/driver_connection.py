@@ -11,10 +11,11 @@ class DriverConnection(QThread):
     waiting = pyqtSignal()
     status_changed = pyqtSignal(str)
     
-    def __init__(self, ip, port):
+    def __init__(self, ip, port, threshold):
         super().__init__()
         self.ip = ip
         self.port = port
+        self.threshold = threshold
         self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.connected_event = Event()
 

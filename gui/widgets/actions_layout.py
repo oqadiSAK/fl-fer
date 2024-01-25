@@ -35,8 +35,10 @@ class ActionsLayout(QVBoxLayout):
         self.addLayout(self.progress_layout)
     
     def _reset_progress_bars(self):
-        for progress_bar in self.progress_bars.values():
-            progress_bar.setValue(0)
+        total = sum(progress_bar.value() for progress_bar in self.progress_bars.values())
+        if total >= self.driver_connection.threshold:
+            for progress_bar in self.progress_bars.values():
+                progress_bar.setValue(0)
             
     def _create_trigger_fl_button(self):
         trigger_fl_button = QPushButton("TRIGGER FL")

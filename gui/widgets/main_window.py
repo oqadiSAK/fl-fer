@@ -9,16 +9,16 @@ class MainWindow(QMainWindow):
     VIDEO_LAYOUT_RATIO = 7
     ACTIONS_LAYOUT_RATIO = 3
 
-    def __init__(self, model, device, cam_type, driver_ip, driver_port):
+    def __init__(self, model, device, cam_type, driver_ip, driver_port, threshold):
         super().__init__()
-        self._init_ui(model, device, cam_type, driver_ip, driver_port)
+        self._init_ui(model, device, cam_type, driver_ip, driver_port, threshold)
         self.video_processor.frame_processed.connect(self.update_frame)
         self.video_processor.start()
         self.driver_connection.start()
 
-    def _init_ui(self, model, device, cam_type, driver_ip, driver_port):
+    def _init_ui(self, model, device, cam_type, driver_ip, driver_port, threshold):
         self.video_processor = VideoProcessor(model, device, cam_type=cam_type)
-        self.driver_connection = DriverConnection(driver_ip, driver_port)
+        self.driver_connection = DriverConnection(driver_ip, driver_port, threshold)
 
         self.setWindowTitle(self.WINDOW_TITLE)
         self.central_widget = QWidget()
