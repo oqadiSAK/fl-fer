@@ -11,6 +11,10 @@ class FrameProcessor:
     
     def __init__(self, model):
         self.model = model
+        if not os.path.isdir(self.SAVED_FRAMES_DIR):
+            os.makedirs(self.SAVED_FRAMES_DIR)
+        if not os.path.isfile(self.LOCAL_SAVES_CSV):
+            pd.DataFrame(columns=['emotion', 'pixels']).to_csv(self.LOCAL_SAVES_CSV, mode='w', index=False)
 
     def process_frame(self, frame):
         gray_image = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -22,18 +26,10 @@ class FrameProcessor:
         gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         resized_frame = cv2.resize(gray_frame, self.model.FRAME_SIZE)
         timestamp = time.strftime("%Y%m%d-%H%M%S")  
-
-        if not os.path.isdir(self.SAVED_FRAMES_DIR):
-            os.makedirs(self.SAVED_FRAMES_DIR)
-
         cv2.imwrite(f'{self.SAVED_FRAMES_DIR}/frame_{timestamp}.png', resized_frame) 
         pixels = ' '.join(map(str, resized_frame.flatten()))
         data = pd.DataFrame([[emotion, pixels]], columns=['emotion', 'pixels'])
-
-        if not os.path.isfile(self.LOCAL_SAVES_CSV):
-            data.to_csv(self.LOCAL_SAVES_CSV, mode='w', index=False)
-        else:
-            data.to_csv(self.LOCAL_SAVES_CSV, mode='a', index=False, header=False)
+        data.to_csv(self.LOCAL_SAVES_CSV, mode='a', index=False, header=False)
             
     def _get_best_face(self, gray_image):
         faces = self.model._face_classifier.detectMultiScale(gray_image, self.FACE_DETECTION_SCALE_FACTOR, 
