@@ -52,6 +52,12 @@ class Driver:
                     client_socket, client_address = self.server.accept()
                     log(INFO, f'Client with the IP {client_address[0]} has CONNECTED')
                     self.clients.append(client_socket)
+
+                    if len(self.clients) >= self.min_available_clients:  
+                        self.broadcast("READY")
+                    else:
+                        client_socket.send("WAITING".encode())
+
                     client_thread = threading.Thread(target=self.handle_client, args=(client_socket, client_address))
                     client_thread.start()
                 except socket.timeout:
