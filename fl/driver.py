@@ -33,7 +33,8 @@ class Driver:
                         log(INFO, "Received TRIGGER_FL message.")
                         self.broadcast("FL_STARTED")
                         try:
-                            start_flower_driver(self.server_address, self.min_available_clients, self.centralized_evaluate_fn)
+                            accuracy = start_flower_driver(self.server_address, self.min_available_clients, self.centralized_evaluate_fn)
+                            self.broadcast(f"ACCURACY {accuracy}")
                         except Exception as e:
                             log(ERROR, f"FL round failed: {e}")
                             self.broadcast("FL_ERROR")
@@ -86,3 +87,5 @@ def start_flower_driver(server_address, min_available_clients, centralized_evalu
 
     log(INFO, "FL round finished.")
     print(history)
+    last_accuracy = history.metrics_centralized['accuracy'][-1][1]
+    return last_accuracy

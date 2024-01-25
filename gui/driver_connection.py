@@ -10,6 +10,7 @@ class DriverConnection(QThread):
     ready = pyqtSignal()
     waiting = pyqtSignal()
     status_changed = pyqtSignal(str)
+    accuracy_updated = pyqtSignal(str)
     
     def __init__(self, ip, port, threshold):
         super().__init__()
@@ -48,6 +49,10 @@ class DriverConnection(QThread):
                     log(INFO, f"Received FL_ENDED from driver")
                     self.fl_ended.emit()
                     self.status_changed.emit("IDLE")
+                elif data.startswith(b'ACCURACY'):
+                    log(INFO, f"Received ACCURACY from driver")
+                    accuracy = data.decode().split()[1]
+                    self.accuracy_updated.emit(accuracy)
             except ConnectionResetError:
                 log(ERROR, "Driver has disconnected")
                 self.status_changed.emit("FL_ERROR")

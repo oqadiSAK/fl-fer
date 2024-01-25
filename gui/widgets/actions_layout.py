@@ -1,7 +1,7 @@
 import pandas as pd
 from PyQt6.QtWidgets import QVBoxLayout, QLabel, QPushButton, QDialog, QRadioButton, QProgressBar, QHBoxLayout
 from PyQt6.QtGui import QFont, QPixmap
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, pyqtSlot
 
 class ActionsLayout(QVBoxLayout):
     SAVE_BUTTON_SIZE = 100
@@ -27,13 +27,26 @@ class ActionsLayout(QVBoxLayout):
         self.driver_connection.ready.connect(lambda: self.trigger_fl_button.setEnabled(True))
         self.driver_connection.waiting.connect(lambda: self.trigger_fl_button.setDisabled(True))
         self.save_button = self._create_save_button()
+        self.threshold_label = QLabel()
+        self._set_threshold_label()
+        self.accuracy_label = QLabel()
+        self.driver_connection.accuracy_updated.connect(self.update_accuracy_label)
         self.addWidget(self.emoji_label, alignment=Qt.AlignmentFlag.AlignCenter)
         self.addWidget(self.trigger_fl_button, alignment=Qt.AlignmentFlag.AlignCenter)
         self.addWidget(self.status_label, alignment=Qt.AlignmentFlag.AlignCenter)
+        self.addWidget(self.threshold_label, alignment=Qt.AlignmentFlag.AlignCenter)
+        self.addWidget(self.accuracy_label, alignment=Qt.AlignmentFlag.AlignCenter)
         self.addWidget(self.save_button, alignment=Qt.AlignmentFlag.AlignCenter)
         self.progress_layout, self.progress_bars = self._create_progress_bars()
         self.addLayout(self.progress_layout)
     
+    @pyqtSlot(str)
+    def update_accuracy_label(self, accuracy):
+        self.accuracy_label.setText(f"FER2013 Accuracy: {accuracy}")
+        
+    def _set_threshold_label(self):
+        self.threshold_label.setText(f"FL Threshold: {self.driver_connection.threshold}")
+        
     def _reset_progress_bars(self):
         total = sum(progress_bar.value() for progress_bar in self.progress_bars.values())
         if total >= self.driver_connection.threshold:
