@@ -31,9 +31,10 @@ class VideoProcessor(QThread):
 
             self.frame = self.camera.capture_frame()
             if self.frame is not None:
-                processed_frame, emoji_path = self.frame_processor.process_frame(np.copy(self.frame))
+                processed_frame, emoji_label = self.frame_processor.process_frame(np.copy(self.frame))
+                self.last_emotion = emoji_label
                 pixmap = create_pixmap(processed_frame)
-                self.frame_processed.emit(pixmap, emoji_path)
+                self.frame_processed.emit(pixmap, emoji_label)
             self.msleep(int(1000/self.FPS))  
 
     def pause(self):
@@ -50,5 +51,4 @@ class VideoProcessor(QThread):
         
     def save_frame(self, emotion):
         self.frame_processor.save_frame(self.frame, emotion)
-        self.last_emotion = emotion
         
