@@ -6,7 +6,7 @@ parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.insert(0, parent_dir)
 
 from utils.training import train, evaluate
-from utils.plot import plot_confusion_matrix, plot_loss_accuracy
+from utils.plot import Plotter
 from utils.loaders import load_data_loaders, load_model, CLASSES
 
 def main():
@@ -22,12 +22,13 @@ def main():
     training_loader, test_loader, validation_loader = load_data_loaders()
     _, train_metrics = train(model, device, training_loader, validation_loader, 
           args.epochs, args.learning_rate, args.momentum, args.weight_decay)
-    plot_loss_accuracy(train_metrics, filename="centralized_loss_accuracy_plot")
+    plotter = Plotter()
+    plotter.plot_loss_accuracy(train_metrics, filename="centralized_loss_accuracy_plot")
     
     _, _, test_metrics = evaluate(model, device, test_loader)
-    plot_confusion_matrix(test_metrics["y_true"], test_metrics["y_pred"], CLASSES, filename="centralized_confusion_matrix")
+    plotter.plot_confusion_matrix(test_metrics["y_true"], test_metrics["y_pred"], CLASSES, filename="centralized_confusion_matrix")
     accuracy = int(test_metrics["accuracy"])
-    torch.save(model.state_dict(), f'trained/centralized_model_{accuracy}.t7')
+    torch.save(model.state_dict(), f'output/trained/centralized_model_{accuracy}.t7')
 
 if __name__ == "__main__":
     main()

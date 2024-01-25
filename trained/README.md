@@ -1,1 +1,0 @@
-You can find the saved model here after you run the train.py

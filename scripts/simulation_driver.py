@@ -8,7 +8,7 @@ sys.path.insert(0, parent_dir)
 from collections import OrderedDict
 from typing import List, Tuple, Dict, Optional
 from flwr.common import Metrics
-from utils.plot import plot_fl_centralized_metrics, plot_fl_distributed_evaluation_metrics, plot_fl_distributed_fit_metrics, plot_fl_losses
+from utils.plot import Plotter, plot_fl_centralized_metrics, plot_fl_distributed_evaluation_metrics, plot_fl_distributed_fit_metrics, plot_fl_losses
 from utils.mappers import map_eval_metrics
 from utils.training import evaluate
 from utils.loaders import load_data_loaders, load_model
@@ -77,7 +77,8 @@ history = fl.driver.start_driver(
 )
 
 print(history)
-plot_fl_losses(history)
-plot_fl_distributed_fit_metrics(history)
-plot_fl_distributed_evaluation_metrics(history)
-plot_fl_centralized_metrics(history)
+plotter = Plotter()
+plotter.plot_fl_losses(history)
+plotter.plot_fl_distributed_fit_metrics(history)
+plotter.plot_fl_distributed_evaluation_metrics(history)
+plotter.plot_fl_centralized_metrics(history)

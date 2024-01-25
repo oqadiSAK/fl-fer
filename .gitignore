@@ -5,12 +5,12 @@ data/*
 !data/README.md
 
 # Ignore all files in trained directory except README.md
-trained/*
-!trained/README.md
+output/trained/*
+!output/trained//README.md
 
-# Ignore all files in output directory except README.md
-output/*
-!output/README.md
+# Ignore all files in plots directory except README.md
+output/plots*
+!output/plots/README.md
 
 # Ignore all files in trained directory except README.md
 gui/local/*
