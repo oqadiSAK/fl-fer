@@ -1,4 +1,5 @@
-from PyQt6.QtWidgets import QVBoxLayout, QLabel, QPushButton, QDialog, QRadioButton
+import pandas as pd
+from PyQt6.QtWidgets import QVBoxLayout, QLabel, QPushButton, QDialog, QRadioButton, QProgressBar, QHBoxLayout
 from PyQt6.QtGui import QFont, QPixmap
 from PyQt6.QtCore import Qt
 
@@ -29,7 +30,9 @@ class ActionsLayout(QVBoxLayout):
         self.addWidget(self.trigger_fl_button, alignment=Qt.AlignmentFlag.AlignCenter)
         self.addWidget(self.status_label, alignment=Qt.AlignmentFlag.AlignCenter)
         self.addWidget(self.save_button, alignment=Qt.AlignmentFlag.AlignCenter)
-
+        self.progress_layout, self.progress_bars = self._create_progress_bars()
+        self.addLayout(self.progress_layout)
+            
     def _create_trigger_fl_button(self):
         trigger_fl_button = QPushButton("TRIGGER FL")
         trigger_fl_button.setFont(self.TRIGGER_FL_BUTTON_FONT)
@@ -44,6 +47,34 @@ class ActionsLayout(QVBoxLayout):
         save_button.clicked.connect(self.save_frame_and_select_emotion)
         return save_button
 
+    def _create_progress_bars(self):
+        progress_bars = {}
+        labels_layout = QVBoxLayout()
+        bars_layout = QVBoxLayout()
+        try:
+            df = pd.read_csv('saved_frames.csv')
+            emotion_counts = df['emotion'].value_counts()
+        except FileNotFoundError:
+            emotion_counts = pd.Series(0, index=self.video_processor.model.EMOTIONS)
+
+        for emotion in self.video_processor.model.EMOTIONS:
+            progress_bar = QProgressBar()
+            progress_bar.setMaximum(50)
+            progress_bar.setValue(emotion_counts.get(emotion, 0))
+            progress_bar.setFormat('%v/50')
+            bars_layout.addWidget(progress_bar)
+
+            label = QLabel(f'{emotion}:')
+            labels_layout.addWidget(label)
+
+            progress_bars[emotion] = progress_bar
+
+        layout = QHBoxLayout()
+        layout.addLayout(labels_layout)
+        layout.addLayout(bars_layout)
+
+        return layout, progress_bars
+    
     def save_frame_and_select_emotion(self):
         self.show_emotion_dialog()
 
@@ -76,6 +107,8 @@ class ActionsLayout(QVBoxLayout):
     def save_frame(self, dialog, radio_buttons):
         selected_emotion_index = next((i for i, rb in enumerate(radio_buttons) if rb.isChecked()))
         self.video_processor.save_frame(selected_emotion_index)
+        selected_emotion = self.video_processor.model.EMOTIONS[selected_emotion_index]
+        self.progress_bars[selected_emotion].setValue(self.progress_bars[selected_emotion].value() + 1)
         dialog.accept()
 
     def update_emoji_label(self, emoji_label):
