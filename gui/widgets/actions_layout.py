@@ -22,6 +22,7 @@ class ActionsLayout(QVBoxLayout):
         self.driver_connection.status_changed.connect(self.status_label.setText)
         self.trigger_fl_button = self._create_trigger_fl_button()
         self.driver_connection.fl_ended.connect(lambda: self.trigger_fl_button.setEnabled(True))
+        self.driver_connection.fl_ended.connect(self._reset_progress_bars)
         self.driver_connection.fl_started.connect(lambda: self.trigger_fl_button.setDisabled(True))
         self.driver_connection.ready.connect(lambda: self.trigger_fl_button.setEnabled(True))
         self.driver_connection.waiting.connect(lambda: self.trigger_fl_button.setDisabled(True))
@@ -32,6 +33,10 @@ class ActionsLayout(QVBoxLayout):
         self.addWidget(self.save_button, alignment=Qt.AlignmentFlag.AlignCenter)
         self.progress_layout, self.progress_bars = self._create_progress_bars()
         self.addLayout(self.progress_layout)
+    
+    def _reset_progress_bars(self):
+        for progress_bar in self.progress_bars.values():
+            progress_bar.setValue(0)
             
     def _create_trigger_fl_button(self):
         trigger_fl_button = QPushButton("TRIGGER FL")
@@ -52,15 +57,15 @@ class ActionsLayout(QVBoxLayout):
         labels_layout = QVBoxLayout()
         bars_layout = QVBoxLayout()
         try:
-            df = pd.read_csv('saved_frames.csv')
+            df = pd.read_csv(self.video_processor.frame_processor.LOCAL_SAVES_CSV)
             emotion_counts = df['emotion'].value_counts()
         except FileNotFoundError:
             emotion_counts = pd.Series(0, index=self.video_processor.model.EMOTIONS)
 
-        for emotion in self.video_processor.model.EMOTIONS:
+        for i, emotion in enumerate(self.video_processor.model.EMOTIONS):
             progress_bar = QProgressBar()
             progress_bar.setMaximum(50)
-            progress_bar.setValue(emotion_counts.get(emotion, 0))
+            progress_bar.setValue(emotion_counts.get(i, 0))
             progress_bar.setFormat('%v/50')
             bars_layout.addWidget(progress_bar)
 
