@@ -34,7 +34,7 @@ class Driver:
                         self.broadcast("FL_STARTED")
                         try:
                             accuracy = start_flower_driver(self.server_address, self.min_available_clients, self.centralized_evaluate_fn)
-                            self.broadcast(f"ACCURACY {accuracy}")
+                            self.broadcast(f"ACCURACY {accuracy:.2f}")
                         except Exception as e:
                             log(ERROR, f"FL round failed: {e}")
                             self.broadcast("FL_ERROR")
