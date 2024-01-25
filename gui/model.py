@@ -4,7 +4,7 @@ import torch
 class Model:
     EMOTIONS = ['Angry', 'Disgust', 'Fear', 'Happy', 'Sad', 'Surprise', 'Neutral']
     HAARCASCADE_PATH = cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
-    FRAME_SIZE = (44, 44)
+    FRAME_SIZE = (48, 48)
     
     def __init__(self, model, device):
         self.model = model

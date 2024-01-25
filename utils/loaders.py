@@ -8,7 +8,7 @@ from torch.utils.data import DataLoader
 from torch.utils.data import Subset
 
 CLASSES = ['Angry', 'Disgust', 'Fear', 'Happy', 'Sad', 'Surprise', 'Neutral']
-_SHAPE = (44, 44)
+_SHAPE = (48, 48)
 
 _TRAIN_TRANSFORM = transforms.Compose([
     transforms.RandomCrop(_SHAPE[0]), 
@@ -83,7 +83,7 @@ def _get_dynamic_dataset(threshold=5):
         next(data)
         for row in data:
             face = [int(pixel) for pixel in row[1].split()]
-            face = np.asarray(face).reshape(48, 48)
+            face = np.asarray(face).reshape(_SHAPE[0], _SHAPE[1])
             face = face.astype('uint8')
             emotions.append(int(row[0]))
             images.append(Image.fromarray(face))
@@ -106,7 +106,7 @@ def _get_dataset(file_path, transform):
         next(data)
         for row in data:
             face = [int(pixel) for pixel in row[1].split()]
-            face = np.asarray(face).reshape(48, 48)
+            face = np.asarray(face).reshape(_SHAPE[0], _SHAPE[1])
             face = face.astype('uint8')
 
             emotions.append(int(row[0]))
