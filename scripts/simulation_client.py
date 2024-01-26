@@ -50,7 +50,7 @@ def main():
     
     # Start Flower client
     fl.client.start_numpy_client(
-        server_address="0.0.0.0:9092",  
+        server_address="localhost:9092",  
         client=FlowerClient(model, device, training_loader, test_loader, validation_loader),
         transport="grpc-rere", 
     )
