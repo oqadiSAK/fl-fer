@@ -54,6 +54,14 @@ The simulation is a crucial part of this project as it allows us to test and val
 
 In the simulation, each client is initialized with the same model and then trained on the FER2013 dataset. After each round of training, the clients send their updated models back to the server. The server then aggregates these models into a single global model using a process(`strategy`) called Federated Averaging. This global model is then sent back to the clients for the next round of training. This process is repeated for a `predefined number of rounds` in a `synchronized` flow.
 
+You can run the simulation by executing the shell script:
+
+```sh
+./scripts/run_simulation.sh
+```
+
+The number of clients participating in the simulation can be adjusted within the script.
+
 
 ## Platform
 
