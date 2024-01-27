@@ -76,7 +76,7 @@ The platform consists of three core components: the server, the client, and the 
 - The **driver** orchestrates the federated learning process. It triggers the start of each training round and manages the communication between the server and the clients.
 
 The platform operates asynchronously, which means that when a federated learning round is triggered, not all clients are required to participate in local training. This is because some clients may not have local data to contribute to the learning process.
-![image]()
+
 <p align="center">
   <img src="https://github.com/oqadiSAK/fl-fer/assets/107847428/2182444b-35a1-4242-8d68-e8121f6eceed" alt="FL Platform Workflow"/>
 </p>
