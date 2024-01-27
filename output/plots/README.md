@@ -1,1 +1,1 @@
-You can find the extracted plots here
+The generated plots from either centralized learning or the simulation can be found in this folder.

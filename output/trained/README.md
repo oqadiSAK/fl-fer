@@ -1,1 +1,1 @@
-You can find the saved model here after you run the train.py
+After executing `train.py`, the saved model will be located in this directory.

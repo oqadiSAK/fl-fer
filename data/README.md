@@ -1,1 +1,1 @@
-Place the fer2013.csv dataset in this folder
+Before running any part of the project, please ensure that the `fer2013.csv` dataset is placed in this folder. This dataset is used for training the model.
